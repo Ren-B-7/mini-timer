@@ -17,7 +17,7 @@ You can trigger the timer directly from your terminal:
 
 ```bash
 # Set a timer for 10 minutes
-timer 10
+timer 600
 
 # Note: Further CLI flags and functionality are being expanded.
 ```
