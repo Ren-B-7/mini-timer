@@ -107,9 +107,11 @@ lint:
 	clang-tidy $(CLANG_TIDY_CHECKS) $(SRC_DIR)/main.c -- $(shell pkg-config --cflags gtk+-3.0 | sed 's/-I/-isystem /g') $(CLANG_TIDY_FLAGS)
 	mbake validate --config ./.bake.toml Makefile
 
-test: tests/test_stringlib.c $(SRC_DIR)/include/stringlib.c
-	$(CC) -Isrc/include -Itests/include tests/test_stringlib.c $(SRC_DIR)/include/stringlib.c -o tests/runner
-	./tests/runner
+test: tests/test_stringlib.c tests/test_timer.c $(SRC_DIR)/include/stringlib.c | directories
+	$(CC) -Isrc/include -Itests/include tests/test_stringlib.c $(SRC_DIR)/include/stringlib.c -o bin/runner_string
+	./bin/runner_string
+	$(CC) -Isrc/include -Itests/include tests/test_timer.c -o bin/runner_timer
+	./bin/runner_timer
 
 install: $(TARGET)
 	mkdir -p $(HOME)/.local/bin
