@@ -278,38 +278,41 @@ static void run_timer(TimerState* state)
 	printf("\nTimer ended!\n\a");
 }
 
-static void timer_cli_callback(int argc, char** argv, void* user_data)
+static int timer_cli_callback(int argc, char** argv, void* user_data)
 {
 	TimerState* state = (TimerState*) user_data;
 	if (argc < 1 || argv[0] == NULL) {
 		fprintf(stderr, "Error: No duration provided.\n");
-		return;
+		return 0;
 	}
 	state->remaining = (int) strtol(argv[0], NULL, BASE_TEN);
 	run_timer(state);
+	return 1;
 }
 
-static void hours_cli_callback(int argc, char** argv, void* user_data)
+static int hours_cli_callback(int argc, char** argv, void* user_data)
 {
 	TimerState* state = (TimerState*) user_data;
 	if (argc < 1 || argv[0] == NULL) {
 		fprintf(stderr, "Error: No duration provided.\n");
-		return;
+		return 0;
 	}
 	state->remaining = (int) strtol(argv[0], NULL, BASE_TEN) * SECONDS_PER_HOUR;
 	run_timer(state);
+	return 1;
 }
 
-static void minutes_cli_callback(int argc, char** argv, void* user_data)
+static int minutes_cli_callback(int argc, char** argv, void* user_data)
 {
 	TimerState* state = (TimerState*) user_data;
 	if (argc < 1 || argv[0] == NULL) {
 		fprintf(stderr, "Error: No duration provided.\n");
-		return;
+		return 0;
 	}
 	state->remaining =
 	 (int) strtol(argv[0], NULL, BASE_TEN) * SECONDS_PER_MINUTE;
 	run_timer(state);
+	return 1;
 }
 
 int main(int argc, char** argv)
@@ -333,13 +336,11 @@ int main(int argc, char** argv)
 	cli_add_argument(&parser, m_arg);
 
 	if (argc > 1) {
-		if (argv[1][0] != '-') {
-			state.remaining = (int) strtol(argv[1], NULL, BASE_TEN);
-			timer_cli_callback(1, &argv[1], &state);
-			cli_destroy(&parser);
-			return 0;
+		int consumed = cli_parse(&parser, argc, argv);
+		if (consumed < argc && state.remaining == 0) {
+			state.remaining = (int) strtol(argv[consumed], NULL, BASE_TEN);
+			timer_cli_callback(1, &argv[consumed], &state);
 		}
-		cli_parse(&parser, argc, argv);
 		cli_destroy(&parser);
 		return 0;
 	}
